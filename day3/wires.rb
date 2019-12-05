@@ -1,11 +1,8 @@
-require 'pry'
-binding.pry
-
 input = File.readlines('./input', :chomp=>true)
 
 width_a, width_b, height_a, height_b = 0,0,0,0
 
-grid = Array.new(1000) { Array.new(1000) { [false, false] }}
+grid = Array.new(10000) { Array.new(10000) { [false, false] }}
 row_o = col_o = row = col = grid.length / 2
 grid[row][col] = 'O'
 
