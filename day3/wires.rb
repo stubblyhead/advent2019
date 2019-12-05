@@ -1,12 +1,12 @@
+# require 'pry'
+# binding.pry
+
 input = File.readlines('./input', :chomp=>true)
 
-width_a, width_b, height_a, height_b = 0,0,0,0
-
-grid = Array.new(10000) { Array.new(10000) { [false, false] }}
+grid = Array.new(8000) { Array.new(8000) }
 row_o = col_o = row = col = grid.length / 2
-grid[row][col] = 'O'
 
-def move(grid, row, col, step, wire)
+def move(grid, row, col, step, distance, wire)
   direction = step[0]
   length = step[1..-1].to_i
 
@@ -14,57 +14,70 @@ def move(grid, row, col, step, wire)
   when 'U'
     length.times {
       row -= 1
-      grid[row][col][wire] = true
+      distance += 1
+      if grid[row][col] == nil
+        grid[row][col] = [0,0]
+      end
+      grid[row][col][wire] = distance unless grid[row][col][wire] > 0
     }
   when 'D'
     length.times {
       row += 1
-      grid[row][col][wire] = true
+      distance += 1
+      if grid[row][col] == nil
+        grid[row][col] = [0,0]
+      end
+      grid[row][col][wire] = distance unless grid[row][col][wire] > 0
     }
   when 'R'
     length.times {
       col += 1
-      grid[row][col][wire] = true
+      distance += 1
+      if grid[row][col] == nil
+        grid[row][col] = [0,0]
+      end
+      grid[row][col][wire] = distance unless grid[row][col][wire] > 0
     }
   when 'L'
     length.times {
       col -= 1
-      grid[row][col][wire] = true
+      distance += 1
+      if grid[row][col] == nil
+        grid[row][col] = [0,0]
+      end
+      grid[row][col][wire] = distance unless grid[row][col][wire] > 0
     }
   end
-  [grid, row, col]
+  [grid, row, col, distance]
 
 end
 
 wire_a = input[0]
 wire_b = input[1]
 
+distance = 0
 wire_a.split(',').each do |step|
-  grid, row, col = move(grid, row, col, step, 0)
+  grid, row, col, distance = move(grid, row, col, step, distance, 0)
 end
 
 row, col = [row_o, col_o]
 
+distance = 0
 wire_b.split(',').each do |step|
-  grid, row, col = move(grid, row, col, step, 1)
+  grid, row, col, distance = move(grid, row, col, step, distance, 1)
 end
 
+#grid[row_o][col_o] = [0,0]
 intersections = []
-grid.each_index do |row|
-  while grid[row].include?([true, true])
-    col = grid[row].index([true, true])
-    intersections.push([row, col])
-    grid[row][col] = '+'
+grid.each_index do |rownum|
+  grid[rownum].each_index do |colnum|
+    if grid[rownum][colnum] != nil
+      if grid[rownum][colnum].min > 0
+        intersections.push(grid[rownum][colnum].sum)
+      end
+    end
   end
 end
+
 puts intersections.length
-
-closest = grid.length * 2
-intersections.each do |int|
-  vert = (row_o - int[0]).abs
-  horiz = (col_o - int[1]).abs
-  distance = vert + horiz
-  closest = [closest, distance].min
-end
-
-puts closest
+puts intersections.min
