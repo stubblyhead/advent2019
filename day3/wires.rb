@@ -3,7 +3,7 @@
 
 input = File.readlines('./input', :chomp=>true)
 
-grid = Array.new(8000) { Array.new(8000) }
+grid = Array.new(15000) { Array.new(15000) }
 row_o = col_o = row = col = grid.length / 2
 
 def move(grid, row, col, step, distance, wire)
@@ -19,6 +19,7 @@ def move(grid, row, col, step, distance, wire)
         grid[row][col] = [0,0]
       end
       grid[row][col][wire] = distance unless grid[row][col][wire] > 0
+      # p grid[row][col] if wire == 1
     }
   when 'D'
     length.times {
@@ -28,6 +29,7 @@ def move(grid, row, col, step, distance, wire)
         grid[row][col] = [0,0]
       end
       grid[row][col][wire] = distance unless grid[row][col][wire] > 0
+      # p grid[row][col] if wire == 1
     }
   when 'R'
     length.times {
@@ -37,6 +39,7 @@ def move(grid, row, col, step, distance, wire)
         grid[row][col] = [0,0]
       end
       grid[row][col][wire] = distance unless grid[row][col][wire] > 0
+      # p grid[row][col] if wire == 1
     }
   when 'L'
     length.times {
@@ -46,6 +49,7 @@ def move(grid, row, col, step, distance, wire)
         grid[row][col] = [0,0]
       end
       grid[row][col][wire] = distance unless grid[row][col][wire] > 0
+      # p grid[row][col] if wire == 1
     }
   end
   [grid, row, col, distance]
@@ -79,5 +83,5 @@ grid.each_index do |rownum|
   end
 end
 
-puts intersections.length
+#puts intersections.sort
 puts intersections.min
