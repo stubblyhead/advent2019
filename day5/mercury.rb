@@ -1,3 +1,6 @@
+require 'pry'
+binding.pry
+
 class Intcode
   attr_reader :stack, :pointer, :input
 
@@ -113,7 +116,7 @@ class Intcode
 
   def halt
     puts "#{@pointer}, #{@prev_pointer}"
-    @finished == true
+    @finished = true
   end
 
   def successful?
