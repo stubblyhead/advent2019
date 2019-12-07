@@ -6,6 +6,7 @@ class Intcode
     @pointer = 0
     @input = input
     @prev_pointer = 0
+    @finished = false
   end
 
   def walk
@@ -19,6 +20,14 @@ class Intcode
       input(@stack[@pointer+1])
     when /4$/
       output(inst, @stack[@pointer+1])
+    when /5$/
+      jump_if_true(inst, *@stack[@pointer+1,2])
+    when /6$/
+      jump_if_false(inst, *@stack[@pointer+1,2])
+    when /7$/
+      lt(inst, *@stack[@pointer+1,3])
+    when /8$/
+      eq(inst, *@stack[@pointer+1,3])
     when /99$/
       halt()
     end
@@ -62,22 +71,64 @@ class Intcode
     inst = inst.rjust(5, '0')
     inst[-3] == '0' ? a = @stack[src] : a = src
     puts "#{@pointer} #{a}"
-    # if a != 0
-    #   puts "error at #{@pointer}, instruction #{inst} for address #{src}"
-    # end
     @prev_pointer = @pointer
     @pointer += 2
   end
 
+  def jump_if_true(inst, val, dest)
+    inst = inst.rjust(5, '0')
+    val = @stack[val] if inst[-3] == '0'
+    if val == 0
+      @pointer += 3
+    else
+      @pointer = val
+    end
+  end
+
+  def jump_if_false(inst, val, dest)
+    inst = inst.rjust(5, '0')
+    val = @stack[val] if inst[-3] == '0'
+    if val == 0
+      @pointer = val
+    else
+      @pointer += 3
+    end
+  end
+
+  def lt(inst, a, b, dest)
+    inst = inst.rjust(5,'0')
+    a = @stack[a] if inst[-3] == '0'
+    b = @stack[a] if inst[-4] == '0'
+    a < b ? @stack[dest] = 1 : @stack[dest] = 0
+    @pointer += 4
+  end
+
+  def eq(inst, a, b, dest)
+    inst = inst.rjust(5,'0')
+    a = @stack[a] if inst[-3] == '0'
+    b = @stack[a] if inst[-4] == '0'
+    a == b ? @stack[dest] = 1 : @stack[dest] = 0
+    @pointer += 4
+  end
+
   def halt
     puts "#{@pointer}, #{@prev_pointer}"
-    exit
+    @finished == true
+  end
+
+  def successful?
+    @finished
   end
 end
 
 inst = File.readlines('./input', :chomp=>true)[0].split(',').map { |s| s.to_i }
 
-machine = Intcode.new(inst, 1)
-while true
-  machine.walk
+air_conditioner = Intcode.new(inst, 1)
+until air_conditioner.successful?
+  air_conditioner.walk
+end
+
+thermal_radiator = Intcode.new(inst, 5)
+until thermal_radiator.successful?
+  thermal_radiator.walk
 end
