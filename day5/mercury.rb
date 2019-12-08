@@ -46,6 +46,7 @@ class Intcode
     end
     a = @stack[a] if inst[-3] == '0'
     b = @stack[b] if inst[-4] == '0'
+    puts "moving #{a+b} into #{dest}"
     @stack[dest] = a + b
     @prev_pointer = @pointer
     @pointer += 4
@@ -59,6 +60,7 @@ class Intcode
   end
     a = @stack[a] if inst[-3] == '0'
     b = @stack[b] if inst[-4] == '0'
+    puts "moving #{a*b} into #{dest}"
     @stack[dest] = a * b
     @prev_pointer = @pointer
     @pointer += 4
@@ -84,7 +86,7 @@ class Intcode
     if val == 0
       @pointer += 3
     else
-      @pointer = val
+      @pointer = dest
     end
   end
 
@@ -92,7 +94,7 @@ class Intcode
     inst = inst.rjust(5, '0')
     val = @stack[val] if inst[-3] == '0'
     if val == 0
-      @pointer = val
+      @pointer = dest
     else
       @pointer += 3
     end
@@ -131,6 +133,7 @@ until air_conditioner.successful?
   air_conditioner.walk
 end
 
+inst = "3,9,8,9,10,9,4,9,99,-1,8".split(',').map { |s| s.to_i }
 thermal_radiator = Intcode.new(inst, 5)
 until thermal_radiator.successful?
   thermal_radiator.walk
