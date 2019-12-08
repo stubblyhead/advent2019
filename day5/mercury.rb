@@ -5,7 +5,7 @@ class Intcode
   attr_reader :stack, :pointer, :input
 
   def initialize(stack, input)
-    @stack = stack
+    @stack = stack.dup
     @pointer = 0
     @input = input
     @prev_pointer = 0
@@ -83,9 +83,10 @@ class Intcode
   def jump_if_true(inst, val, dest)
     inst = inst.rjust(5, '0')
     val = @stack[val] if inst[-3] == '0'
-    if val == 0
+    dest = @stack[dest] if inst[-4] == '0'
+    if val == 0  #value is zero, so continue to next instr as normal
       @pointer += 3
-    else
+    else  #value is not zero, so jump
       @pointer = dest
     end
   end
@@ -93,9 +94,10 @@ class Intcode
   def jump_if_false(inst, val, dest)
     inst = inst.rjust(5, '0')
     val = @stack[val] if inst[-3] == '0'
-    if val == 0
+    dest = @stack[dest] if inst[-4] == '0'
+    if val == 0  #value is zero, so jump
       @pointer = dest
-    else
+    else  #value is not zero, so continue to next instr as normal
       @pointer += 3
     end
   end
@@ -103,7 +105,7 @@ class Intcode
   def lt(inst, a, b, dest)
     inst = inst.rjust(5,'0')
     a = @stack[a] if inst[-3] == '0'
-    b = @stack[a] if inst[-4] == '0'
+    b = @stack[b] if inst[-4] == '0'
     a < b ? @stack[dest] = 1 : @stack[dest] = 0
     @pointer += 4
   end
@@ -111,7 +113,7 @@ class Intcode
   def eq(inst, a, b, dest)
     inst = inst.rjust(5,'0')
     a = @stack[a] if inst[-3] == '0'
-    b = @stack[a] if inst[-4] == '0'
+    b = @stack[b] if inst[-4] == '0'
     a == b ? @stack[dest] = 1 : @stack[dest] = 0
     @pointer += 4
   end
@@ -133,7 +135,6 @@ until air_conditioner.successful?
   air_conditioner.walk
 end
 
-inst = "3,9,8,9,10,9,4,9,99,-1,8".split(',').map { |s| s.to_i }
 thermal_radiator = Intcode.new(inst, 5)
 until thermal_radiator.successful?
   thermal_radiator.walk
