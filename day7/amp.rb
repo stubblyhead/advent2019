@@ -1,5 +1,5 @@
-require 'pry'
-binding.pry
+# require 'pry'
+# binding.pry
 
 class Intcode
   attr_reader :stack, :pointer, :input, :out
@@ -138,34 +138,34 @@ class Intcode
   end
 end
 
-#input = File.readlines('./input', :chomp => true)[0].split(',').map { |s| s.to_i }
-input = '3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26,27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5'.split(',').map { |s| s.to_i }
+input = File.readlines('./input', :chomp => true)[0].split(',').map { |s| s.to_i }
 
 max_signal = 0
-test_settings = [9,8,7,6,5]
-amps = []
-test_settings.each { |i| amps.push(Intcode.new(input.dup, [i])) }
-amps[0].receive(0)
-(0..4).cycle do |i|
-  amps[i].run
-  if amps[i].out
-    amps[(i+1)%5].receive(amps[i].out)
-  end
-  break if amps[4].successful?
-  puts amps[i].out
+settings = (0..4).to_a.permutation.each do |perm|
+  input_signal = 0
+  5.times {
+    amp = Intcode.new(input.dup, [perm.shift, input_signal])
+    amp.run
+    input_signal = amp.out
+  }
+  max_signal = [input_signal, max_signal].max
 end
 
-puts amps[4].out
+puts max_signal  #part 1 answer
 
+max_signal = 0
+settings = (5..9).to_a.permutation.each do |perm|
+  amps = []
+  perm.each { |i| amps.push(Intcode.new(input.dup, [i])) }
+  amps[0].receive(0)
+  (0..4).cycle do |i|
+    amps[i].run
+    if amps[i].out
+      amps[(i+1)%5].receive(amps[i].out)
+    end
+    break if amps[4].successful?
+  end
+  max_signal = [amps[4].out, max_signal].max
+end
 
-# settings = (0..4).to_a.permutation.each do |perm|
-#   input_signal = 0
-#   5.times {
-#     amp = Intcode.new(input.dup, [perm.shift, input_signal])
-#     amp.run
-#     input_signal = amp.out
-#   }
-#   max_signal = [input_signal, max_signal].max
-# end
-#
-# puts max_signal
+puts max_signal  #part 2 answer
