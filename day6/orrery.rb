@@ -2,7 +2,7 @@ require 'pry'
 binding.pry
 
 class Planet
-  attr_reader :parent, :children, :orbit_count
+  attr_reader :parent, :children, :orbit_count, :name
 
   def initialize(name, parent=nil)
     @parent = parent
@@ -40,3 +40,20 @@ traverse(list, orrery, 'COM', nil)
 orrery.values.each { |i| total_orbits += i.orbit_count }
 
 puts total_orbits
+
+me = ['YOU']
+santa = ['SAN']
+
+parent = orrery['YOU'].parent
+until parent == nil
+  me.push(parent.name)
+  parent = parent.parent
+end
+
+parent = orrery['SAN'].parent
+until parent == nil
+  santa.push(parent.name)
+  parent = parent.parent
+end
+
+puts me, santa
