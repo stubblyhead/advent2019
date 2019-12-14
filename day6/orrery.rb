@@ -56,4 +56,7 @@ until parent == nil
   parent = parent.parent
 end
 
-puts me, santa
+common = (me & santa)[0]
+jumps = me.index(common) + santa.index(common)
+
+puts jumps - 2
