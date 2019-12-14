@@ -22,16 +22,17 @@ orrery = {}
 
 list = File.open('./input', :chomp=>true)
 
-def travel(planet, parent, system, list)
-  # parent_pair = system.filter { |x| /#{planet}$/.match(x) }
-  # if parent_pair.length == 0
-  #   parent = nil
-  # else
-  #   parent = parent_pair.split(')')[0]
-  # end
-  children_pairs = system.filter { |x| /^#{planet}/.match(x) }
-  if children_pairs.length == 0
-    children = nil
-  else
-    children = children_pairs.map { |x| x.match(/.{3}$/) }
-  end
+def traverse(list, system, planet, parent)
+  system[planet] = Planet.new(parent)
+  children_pairs = list.filter { |i| /^#{planet}/.match(i) }
+  children = children_pairs.map { |i| /\)(.*)/ }[1] }
+  children.each { |i| traverse(list, system, i, planet) }
+end
+
+total_orbits = 0
+
+traverse(list, orrery, 'COM', nil)
+
+orrery.values.each { |i| total_orbits += i.orbit_count }
+
+puts total_orbits
