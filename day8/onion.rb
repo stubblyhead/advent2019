@@ -27,6 +27,9 @@ class Layer
       end
       val += "\n"
     end
+    val.gsub!('0', 'X')
+    val.gsub!('1', ' ')
+    val.gsub!('2', ' ')
     val
   end
 end
