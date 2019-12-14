@@ -1,5 +1,5 @@
-require 'pry'
-binding.pry
+# require 'pry'
+# binding.pry
 
 class Intcode
   attr_reader :stack, :pointer, :input, :out
@@ -128,8 +128,7 @@ class Intcode
   end
 end
 
-# input = File.readlines('./input', :chomp => true)[0].split(',').map { |i| i.to_s }
-input = '3,31,3,32,1002,32,10,32,1001,31,-2,31,1007,31,0,33,1002,33,7,33,1,33,31,31,1,32,31,31,4,31,99,0,0,0'.split(',').map { |s| s.to_i }
+input = File.readlines('./input', :chomp => true)[0].split(',').map { |s| s.to_i }
 
 max_signal = 0
 settings = (0..4).to_a.permutation.each do |perm|
