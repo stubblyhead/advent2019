@@ -10,12 +10,24 @@ class Layer
 
   def populate(values)
     values = values.split('')
-    @grid.map! do |i|
-      i.map! do |j|
-        j = values.shift
-        @count[j] += 1
+    @grid.each_index do |i|
+      @grid[i].each_index do |j|
+        val = values.shift
+        @grid[i][j] = val
+        @count[val] += 1
       end
     end
+  end
+
+  def to_s
+    val = ''
+    @grid.each do |i|
+      i.each do |j|
+        val += j
+      end
+      val += "\n"
+    end
+    val
   end
 end
 
@@ -23,7 +35,7 @@ values = File.readlines('input', :chomp=>true)[0]
 
 layers = []
 while values.length > 0
-  layers.push(Layer.new(25,6))
+  layers.push(Layer.new(6,25))
   layers[-1].populate(values.slice!(0,150))
 end
 
