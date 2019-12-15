@@ -290,7 +290,10 @@ class Intcode
 end
 
 list = File.readlines('input')[0].split(',').map { |s| s.to_i }
-sensors = Intcode.new(list, [1])
+sensors = Intcode.new(list.dup, [1])
 sensors.run
+puts sensors.out
 
+sensors = Intcode.new(list.dup, [2])
+sensors.run
 puts sensors.out
