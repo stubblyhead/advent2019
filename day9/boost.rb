@@ -94,7 +94,8 @@ class Intcode
     when '0'
       expand(a) if a >= @stack.length
       a = @stack[a]
-    when '2'expand(@base + a) if @base + a >= @stack.length
+    when '2'
+      expand(@base + a) if @base + a >= @stack.length
       a = @stack[@base + a]
     end
     case inst[-4]
@@ -199,6 +200,7 @@ class Intcode
     when '2'
       expand(@base + b) if @base + b >= @stack.length
       b = @stack[@base + b]
+    end
     if dest >= @stack.length
       expand(dest)
     end
@@ -254,7 +256,7 @@ class Intcode
   end
 
   def expand(new_max)
-    @stack = @stack + Array.new(new_max - @stack.length +1 ) { 0 }
+    @stack = @stack + Array.new(new_max - @stack.length + 1 ) { 0 }
   end
 end
 
