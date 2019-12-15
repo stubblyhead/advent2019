@@ -63,18 +63,22 @@ class Intcode
     end
     case inst[-3]
     when '0'
+      expand(a) if a >= @stack.length
       a = @stack[a]
     when '2'
+      expand(@base + a) if @base + a >= @stack.length
       a = @stack[@base + a]
     end
     case inst[-4]
     when '0'
+      expand(b) if b >= @stack.length
       b = @stack[b]
     when '2'
+      expand(@base + b) if @base + b >= @stack.length
       b = @stack[@base + b]
     end
     if dest >= @stack.length
-      @stack = @stack + Array.new(dest - @stack.length + 1) { 0 }
+      expand(dest)
     end
     @stack[dest] = a + b
     @pointer += 4
@@ -88,23 +92,28 @@ class Intcode
     end
     case inst[-3]
     when '0'
+      expand(a) if a >= @stack.length
       a = @stack[a]
-    when '2'
+    when '2'expand(@base + a) if @base + a >= @stack.length
       a = @stack[@base + a]
     end
     case inst[-4]
     when '0'
+      expand(b) if b >= @stack.length
       b = @stack[b]
     when '2'
+      expand(@base + b) if @base + b >= @stack.length
       b = @stack[@base + b]
     end
     if dest >= @stack.length
-      @stack = @stack + Array.new(dest - @stack.length + 1) { 0 }
+      expand(dest)
+    end
     @stack[dest] = a * b
     @pointer += 4
   end
 
   def input(dest)
+    expand(dest) if dest >= @stack.length
     @stack[dest] = @input.shift
     @pointer += 2
   end
@@ -118,16 +127,29 @@ class Intcode
       a = src
     when '2'
       a = @stack[@base + src]
+    end
     @out = a
     @pointer += 2
   end
 
   def jump_if_true(inst, val, dest)
     inst = inst.rjust(5, '0')
-    val = @stack[val] if inst[-3] == '0'
-    val = @stack[@base + val] if inst[-3] == '2'
-    dest = @stack[dest] if inst[-4] == '0'
-    dest = @stack[@base + dest] if inst[-4] == '2'
+    case inst[-3]
+    when '0'
+      expand(val) if val >= @stack.length
+      val = @stack[val]
+    when '2'
+      expand(@base + val) if @base + val >= @stack.length
+      val = @stack[@base + val]
+    end
+    case inst[-4]
+    when '0'
+      expand(dest) if dest >= @stack.length
+      dest = @stack[dest]
+    when '2'
+      expand(@base + dest) if @base + dest >= @stack.length
+      dest = @stack[@base + dest]
+    end
     if val == 0  #value is zero, so continue to next instr as normal
       @pointer += 3
     else  #value is not zero, so jump
@@ -137,10 +159,22 @@ class Intcode
 
   def jump_if_false(inst, val, dest)
     inst = inst.rjust(5, '0')
-    val = @stack[val] if inst[-3] == '0'
-    val = @stack[@base + val] if inst[-3] == '2'
-    dest = @stack[dest] if inst[-4] == '0'
-    dest = @stack[@base + dest] if inst[-4] == '2'
+    case inst[-3]
+    when '0'
+      expand(val) if val > @stack.length
+      val = @stack[val]
+    when '2'
+      expand(@base + val) if @base + val >= @stack.length
+      val = @stack[@base + val]
+    end
+    case inst[-4]
+    when '0'
+      expand(dest) if dest >= @stack.length
+      dest = @stack[dest]
+    when '2'
+      expand(@base + dest) if @base + dest >= @stack.length
+      dest = @stack[@base + dest]
+    end
     if val == 0  #value is zero, so jump
       @pointer = dest
     else  #value is not zero, so continue to next instr as normal
@@ -150,12 +184,23 @@ class Intcode
 
   def lt(inst, a, b, dest)
     inst = inst.rjust(5,'0')
-    a = @stack[a] if inst[-3] == '0'
-    a = @stack[@base + a] if inst[-3] == '2'
-    b = @stack[b] if inst[-4] == '0'
-    b = @stack[@base + b] if inst[-4] == '2'
+    case inst[-3]
+    when '0'
+      expand(a) if a >= @stack.length
+      a = @stack[a]
+    when '2'
+      expand(@base + a) if @base + a >= @stack.length
+      a = @stack[@base + a]
+    end
+    case inst[-4]
+    when '0'
+      expand(b) if b >= @stack.length
+      b = @stack[b]
+    when '2'
+      expand(@base + b) if @base + b >= @stack.length
+      b = @stack[@base + b]
     if dest >= @stack.length
-      @stack = @stack + Array.new(dest - @stack.length + 1) { 0 }
+      expand(dest)
     end
     a < b ? @stack[dest] = 1 : @stack[dest] = 0
     @pointer += 4
@@ -163,18 +208,30 @@ class Intcode
 
   def eq(inst, a, b, dest)
     inst = inst.rjust(5,'0')
-    a = @stack[a] if inst[-3] == '0'
-    a = @stack[@base + a] if inst[-3] == '2'
-    b = @stack[b] if inst[-4] == '0'
-    b = @stack[@base + b] if inst[-4] == '2'
+    case inst[-3]
+    when '0'
+      expand(a) if a >= @stack.length
+      a = @stack[a]
+    when '2'
+      expand(@base + a) if @base + a >= @stack.length
+      a = @stack[@base + a]
+    end
+    case inst[-4]
+    when '0'
+      expand(b) if b >= @stack.length
+      b = @stack[b]
+    when '2'
+      expand(@base + b) if @base + b >= @stack.length
+      b = @stack[@base + b]
+    end
     if dest >= @stack.length
-      @stack = @stack + Array.new(dest - @stack.length + 1) { 0 }
+      expand(dest)
     end
     a == b ? @stack[dest] = 1 : @stack[dest] = 0
     @pointer += 4
   end
 
-  def adjust(offset)
+  def adjust(inst, offset)
     inst = inst.rjust(5,'0')
     case inst[-3]
     when '0'
@@ -195,4 +252,11 @@ class Intcode
   def successful?
     @finished
   end
+
+  def expand(new_max)
+    @stack = @stack + Array.new(new_max - @stack.length +1 ) { 0 }
+  end
 end
+
+
+puts true
