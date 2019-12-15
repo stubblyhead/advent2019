@@ -1,3 +1,6 @@
+# require 'pry'
+# binding.pry
+
 class Intcode
   attr_reader :stack, :pointer, :input, :out
 
@@ -34,7 +37,7 @@ class Intcode
     when /3$/
       if @input.length > 0
         @waiting = false
-        input(@stack[@pointer+1])
+        input(inst, @stack[@pointer+1])
       else
         @waiting = true
       end
@@ -80,7 +83,14 @@ class Intcode
     if dest >= @stack.length
       expand(dest)
     end
-    @stack[dest] = a + b
+    case inst[0]
+    when '0'
+      expand(dest) if dest >= @stack.length
+      @stack[dest] = a + b
+    when '2'
+      expand(@base + dest) if @base + dest >= @stack.length
+      @stack[@base + dest] = a + b
+    end
     @pointer += 4
   end
 
@@ -106,16 +116,27 @@ class Intcode
       expand(@base + b) if @base + b >= @stack.length
       b = @stack[@base + b]
     end
-    if dest >= @stack.length
-      expand(dest)
+    case inst[0]
+    when '0'
+      expand(dest) if dest >= @stack.length
+      @stack[dest] = a * b
+    when '2'
+      expand(@base + dest) if @base + dest >= @stack.length
+      @stack[@base + dest] = a * b
     end
-    @stack[dest] = a * b
     @pointer += 4
   end
 
-  def input(dest)
-    expand(dest) if dest >= @stack.length
-    @stack[dest] = @input.shift
+  def input(inst, dest)
+    inst = inst.rjust(5, '0')
+    case inst[-3]
+    when '0'
+      expand(dest) if dest >= @stack.length
+      @stack[dest] = @input.shift
+    when '2'
+      expand(@base + dest) if @base + dest >= @stack.length
+      @stack[@base + dest] = @input.shift
+    end
     @pointer += 2
   end
 
@@ -201,10 +222,14 @@ class Intcode
       expand(@base + b) if @base + b >= @stack.length
       b = @stack[@base + b]
     end
-    if dest >= @stack.length
-      expand(dest)
+    case inst[0]
+    when '0'
+      expand(dest) if dest >= @stack.length
+      a < b ? @stack[dest] = 1 : @stack[dest] = 0
+    when '2'
+      expand(@base + dest) if @base + dest >= @stack.length
+      a < b ? @stack[@base + dest] = 1 : @stack[@base + dest] = 0
     end
-    a < b ? @stack[dest] = 1 : @stack[dest] = 0
     @pointer += 4
   end
 
@@ -226,10 +251,14 @@ class Intcode
       expand(@base + b) if @base + b >= @stack.length
       b = @stack[@base + b]
     end
-    if dest >= @stack.length
-      expand(dest)
+    case inst[0]
+    when '0'
+      expand(dest) if dest >= @stack.length
+      a == b ? @stack[dest] = 1 : @stack[dest] = 0
+    when '2'
+      expand(@base + dest) if @base + dest >= @stack.length
+      a == b ? @stack[@base + dest] = 1 : @stack[@base + dest] = 0
     end
-    a == b ? @stack[dest] = 1 : @stack[dest] = 0
     @pointer += 4
   end
 
@@ -260,5 +289,8 @@ class Intcode
   end
 end
 
+list = File.readlines('input')[0].split(',').map { |s| s.to_i }
+sensors = Intcode.new(list, [1])
+sensors.run
 
-puts true
+puts sensors.out
