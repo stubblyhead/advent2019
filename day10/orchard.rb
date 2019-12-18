@@ -1,3 +1,6 @@
+require 'pry'
+binding.pry
+
 #grid = File.readlines('input', :chomp=>true).map { |s| s.split('') }
 
 grid =
@@ -5,7 +8,7 @@ grid =
 .....
 #####
 ....#
-...##"
+...##".lines(:chomp=>true).map{|s| s.split('') }
 
 asteroids = {}
 grid.each_index do |row|
@@ -17,12 +20,16 @@ grid.each_index do |row|
         next if i == row and j == col
         next if grid[i][j] == '.'
         if j == col
-          asteroids[row,col].push((row - i) * Float::INFINITY)
-        end
-        if j > col
-          asteroids[row,col].push((i - row)/(j - col))
+          asteroids[[row,col]].push((row - i) * Float::INFINITY)
+        elsif j > col
+          m = ((i - row).to_f/(j - col))
         else
-          asteroids[row,col].push((row - i)/(col-j))
+          m = ((row - i).to_f/(col-j))
+        end
+        if i > row
+          asteroids[[row,col]].push([m,:right])
+        else
+          asteroids[[row,col]].push([m,:left])
         end
       end
     end
