@@ -30,6 +30,10 @@ grid.each_index do |row|
   end
 end
 max_asteroids = 0
-asteroids.values.each { |i| max_asteroids = [max_asteroids, i.uniq.length].max }
+station = nil
+asteroids.keys.each do |i|
+  max_asteroids = [max_asteroids, asteroids[i].uniq.length].max
+  station = i if max_asteroids == asteroids[i].uniq.length
+end
 
 puts max_asteroids
