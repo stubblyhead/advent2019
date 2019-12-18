@@ -37,3 +37,4 @@ asteroids.keys.each do |i|
 end
 
 puts max_asteroids
+puts station
