@@ -1,7 +1,16 @@
 require 'pry'
 binding.pry
 
-grid = File.readlines('input', :chomp=>true).map { |s| s.split('') }
+#grid = File.readlines('input', :chomp=>true).map { |s| s.split('') }
+grid = ".#....#####...#..
+##...##.#####..##
+##...#...#.#####.
+..#.....X...###..
+..#.#.....#....##".lines(:chomp=>true).map { |s| s.split('') }
+
+def dist(p1, p2)
+  (p1[0]-p2[0]).abs + (p1[1] - p2[1]).abs
+end
 
 asteroids = {}
 grid.each_index do |row|
@@ -16,13 +25,10 @@ grid.each_index do |row|
           asteroids[[row,col]].push([(row - t_row) * Float::INFINITY,:infinite,t_row, t_col])
           next
         elsif t_col > col
-          m = ((t_row - row).to_f/(t_col - col))
-        else
-          m = ((row - t_row).to_f/(col - t_col))
-        end
-        if t_col > col
+          m = -((t_row - row).to_f/(t_col - col))
           asteroids[[row,col]].push([m,:right,t_row,t_col])
         else
+          m = -((row - t_row).to_f/(col - t_col))
           asteroids[[row,col]].push([m,:left,t_row,t_col])
         end
       end
@@ -37,3 +43,5 @@ asteroids.keys.each do |i|
   station = i if max_asteroids == uniq_slopes
 end
 puts max_asteroids
+
+slopes = asteroids[station].map { |i| i[0] }.uniq.sort.reverse
